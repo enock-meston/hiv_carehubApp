@@ -24,7 +24,7 @@ class AppointmentController extends GetxController {
 
     isLoading.value = true;
     try {
-      var url = API.appointment + '1';
+      var url = API.appointment + id.toString();
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {

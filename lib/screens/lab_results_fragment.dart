@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:hiv_carehub/controller/result_controller.dart';
 
 class LabResultsFragment extends StatefulWidget {
   const LabResultsFragment({super.key});
@@ -8,6 +10,14 @@ class LabResultsFragment extends StatefulWidget {
 }
 
 class _LabResultsFragmentState extends State<LabResultsFragment> {
+  final ResultController resultController = Get.put(ResultController());
+
+  @override
+  void initState() {
+    super.initState();
+    resultController.fetchResults();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,39 +26,41 @@ class _LabResultsFragmentState extends State<LabResultsFragment> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Patient Name: John Doe',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Patient ID: 123456',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Lab Test Results',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Expanded(
-              child: ListView(
-                children: [
-                  _buildTestResultCard(
-                    testName: 'Complete Blood Count (CBC)',
-                    result: 'Normal',
-                    referenceRange: '4.0 - 5.5 million cells/mcL',
-                    comments: 'Everything is normal.',
+        child: Obx(() {
+          if (resultController.isLoading.value) {
+            return Center(child: CircularProgressIndicator());
+          } else if (resultController.errorMessage.isNotEmpty) {
+            return Center(child: Text(resultController.errorMessage.value));
+          } else if (resultController.results.isEmpty) {
+            return Center(child: Text('No results available.'));
+          } else {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 20),
+                Text(
+                  'Lab Test Results',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: resultController.results.length,
+                    itemBuilder: (context, index) {
+                      final result = resultController.results[index];
+                      return _buildTestResultCard(
+                        testName: 'Lab Test', // Customize if needed
+                        result: result.result,
+                        referenceRange: result.referenceRange,
+                        comments: result.comments,
+                      );
+                    },
                   ),
-                  // Add more test result cards as needed
-                ],
-              ),
-            ),
-          ],
-        ),
+                ),
+              ],
+            );
+          }
+        }),
       ),
     );
   }
@@ -72,9 +84,10 @@ class _LabResultsFragmentState extends State<LabResultsFragment> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
+
             Text(
               'Result: $result',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 5),
             Text(
