@@ -84,6 +84,7 @@ class ChatController extends GetxController {
           print('Success: ${responseData}');
           if (responseData['status'] == "success") { // Check for success status
             messageController.clear();
+            fetchMessages();
             Get.snackbar('Message', 'message Sent');
           } else {
             print('Server error: ${responseData}');

@@ -9,6 +9,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+
   const MyApp({super.key});
   Future<bool> _checkUserLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
